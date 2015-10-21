@@ -10,6 +10,17 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\common\common.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="thread_pool.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\common\common.h" />
+    <ClInclude Include="line.h" />
+    <ClInclude Include="thread_pool.h" />
+    <ClInclude Include="thread_safe_queue.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{60BAD084-937A-4C96-8AEC-3523DB7FE9D3}</ProjectGuid>
     <RootNamespace>lab2_generator</RootNamespace>
@@ -64,12 +75,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="H:\532\lab2\common\common.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="H:\532\lab2\common\common.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
