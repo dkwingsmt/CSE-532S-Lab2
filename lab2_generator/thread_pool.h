@@ -10,13 +10,15 @@
 #include <condition_variable>
 #include "line.h"
 #include "thread_safe_queue.h"
+#include "thread_joiner.h"
 
 using namespace std;
 class thread_pool
 {
 	vector<thread> threads;
+	thread_joiner  joiner;
 
-	map<string, thread_safe_queue<line>&> character_name_to_queue_map;
+	map<string, thread_safe_queue<line>*> character_name_to_queue_map;
 	mutex character_name_to_queue_map_lock;
 	condition_variable character_map_update_condition;
 
@@ -24,6 +26,8 @@ class thread_pool
 	mutex up_for_grabs_lock;
 
 	const string scene_name;
+
+	const string basepath;
 
 	atomic_int number_of_threads;
 
@@ -35,12 +39,12 @@ class thread_pool
 
 	bool get_work(pair<string, string> &pair, thread_safe_queue<line> &local_queue);
 
-	void work(string character_name, string file_name, thread_safe_queue<line> &local_queue);
+	void work(string character_name, string file_name, thread_safe_queue<line> *local_queue);
 
-	thread_safe_queue<line>& thread_pool::wait_for_character(string character_name);
+	thread_safe_queue<line>* thread_pool::wait_for_character(string character_name);
 
 public:
-	thread_pool(const string &scene_name) : scene_name(scene_name) {}
+	thread_pool(const string &basepath, const string &scene_name) : basepath(basepath), scene_name(scene_name), joiner(threads) {}
 
 	void enter(string character_name, string new_scene_name);
 

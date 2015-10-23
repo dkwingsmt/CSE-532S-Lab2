@@ -13,6 +13,10 @@ class thread_safe_queue
 public:
 	thread_safe_queue() {}
 
+	thread_safe_queue<T>(const thread_safe_queue<T>&) = delete;
+
+	const thread_safe_queue &operator=(const thread_safe_queue<T>&) = delete;
+
 	void push(T new_value) {
 		lock_guard<mutex> lk(mut);
 		data_queue.push(move(new_value));
@@ -21,7 +25,7 @@ public:
 
 	void wait_and_pop(T& value) {
 		unique_lock<mutex> lk(mut);
-		data_condition.wait(lk, [this]{return data_queue.empty(); });
+		data_condition.wait(lk, [this]{return !data_queue.empty(); });
 		value = move(data_queue.front());
 		data_queue.pop();
 	}

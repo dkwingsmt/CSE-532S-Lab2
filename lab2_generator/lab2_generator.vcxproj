@@ -13,11 +13,14 @@
   <ItemGroup>
     <ClCompile Include="..\common\common.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="parser.cpp" />
     <ClCompile Include="thread_pool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\common\common.h" />
     <ClInclude Include="line.h" />
+    <ClInclude Include="parser.h" />
+    <ClInclude Include="thread_joiner.h" />
     <ClInclude Include="thread_pool.h" />
     <ClInclude Include="thread_safe_queue.h" />
   </ItemGroup>
