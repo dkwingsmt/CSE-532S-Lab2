@@ -1,6 +1,8 @@
 #include "common.h"
 #include "Director.h"
 
+using namespace std;
+
 int main(int argc, char **argv) {
     if (argc < 2) {
         cout << "Need script file name.\n";
@@ -8,5 +10,6 @@ int main(int argc, char **argv) {
     }
     const char *scriptFileName = argv[1];
     Director director(scriptFileName);
+    while (!director.cue());
     return 0;
 }

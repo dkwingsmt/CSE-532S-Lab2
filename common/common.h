@@ -3,22 +3,8 @@
 #ifndef __COMMON_H__
 #define __COMMON_H__
 
-#include <cctype>
-
 #include <functional>
-#include <thread>
-#include <algorithm>
-
-#include <iostream>
-#include <sstream>
-#include <fstream>
-
 #include <string>
-#include <list>
-#include <vector>
-#include <map>
-
-using namespace std;
 
 enum ErrorCode {
 	FILE_NOT_OPEN = 1,
@@ -29,10 +15,10 @@ enum ErrorCode {
 //The guard object, that performs given procedure upon desctuction. 
 class TGuard {
 public:
-	TGuard(function<void(void)> f) : _f(f) {}
+	TGuard(std::function<void(void)> f) : _f(f) {}
 	~TGuard() { _f(); }
 private:
-	function<void(void)> _f;
+    std::function<void(void)> _f;
 };
 
 /*
@@ -54,6 +40,6 @@ static inline std::string trim(std::string s) {
 	return ltrim(rtrim(s));
 }
 
-string dirnameOf(const string& fname);
+std::string dirnameOf(const std::string& fname);
 
 #endif  // header guard

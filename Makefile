@@ -1,5 +1,5 @@
 MAINDIR=lab2
-MAINFILES=main.cpp Director.cpp
+MAINFILES=main.cpp Director.cpp Play.cpp Player.cpp
 EXTRADIR=lab2_generator
 EXTRAFILES=main.cpp
 COMMONDIR=common
