@@ -43,7 +43,8 @@ void thread_pool::worker_thread() {
 		thread_safe_queue<line> local_queue;
 		if (get_work(work, local_queue))  {
 			this->work(work.first, work.second, &local_queue);
-			remove_local_queue(work.first);
+			if (!done)
+				remove_local_queue(work.first);
 		}
 		else
 			this_thread::yield();
