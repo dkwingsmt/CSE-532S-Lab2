@@ -9,6 +9,7 @@
 #include <memory>
 #include <condition_variable>
 #include <stdexcept>
+#include <atomic>
 
 #include "common.h"
 #include "Player.h"
@@ -21,9 +22,7 @@ private:
 
     size_t _numThreads;
 
-    Player *_idler;
-    std::mutex _hasIdleMutex;
-    std::condition_variable _hasIdleCv;
+    std::atomic<Player *> _idler;
 
     std::shared_ptr<Play> _play;
     std::list<std::shared_ptr<Player>> _players;
@@ -44,6 +43,12 @@ public:
         // TODO: customized numPlayers
         _recruit(biggestPairFrags);
     }
+
+	~Director() {
+		for (auto player : _players) {
+			player->join();
+		}
+	}
 
     //bool ended() {
     //    return _itNowScene == _scriptConfig.end();

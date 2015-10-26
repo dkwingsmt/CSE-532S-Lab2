@@ -21,7 +21,7 @@ private:
     size_t _fragId;
     std::string _charName;
     std::string _charFileName;
-    //thread _workThread;
+    std::thread _workThread;
 
     std::vector<PlayLine> _lines;
 
@@ -37,20 +37,20 @@ private:
 public:
     Player(Play *play, Director *director) :
         _play(play), _director(director), _ended(false),
-        _hasTask(false)
+        _hasTask(false),
+		_workThread([this] { _start(); })
     {
-        std::thread([this] { _start(); }).detach();
     }
 
-    Player(Player &) = delete;
-    Player(Player &&tmp) = default;
 
-    void shut_down() {
+    void join() {
         {
             std::lock_guard<std::mutex> lk(_idleMutex);
             _ended = true;
         }
         _idleCv.notify_one();
+		if (_workThread.joinable())
+			_workThread.join();
     }
 
     //~Player();

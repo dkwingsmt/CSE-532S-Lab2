@@ -94,22 +94,16 @@ void Director::start() {
 */
 
 bool Director::cue() {
-    if (_play->ended()) {
+	if (_play->distributeEnded()) {
         return true;
     }
 
     Player *deputy;
     // Wait until there's an idle
-    {
-        unique_lock<mutex> lk(_hasIdleMutex);
-        if (!_idler) {
-            _hasIdleCv.wait(lk, [this] { return _idler; });
-        }
-        deputy = _idler;
-        _idler = NULL;
-    }
-    cout << "Deputy here" << endl;
-    _hasIdleCv.notify_one();
+	while (!(deputy = atomic_exchange<Player*>(&_idler, NULL))) {
+		this_thread::yield();
+	}
+	cout << "Selected deputy " << deputy << endl;
 
     tTaskInfo task = _play->getNextTask();
     size_t fragId = task.fragId;
@@ -119,34 +113,26 @@ bool Director::cue() {
     ++newChar;
     Player *follower;
     for(; newChar != task.chars.end(); newChar++) {
-        cout << "Follower?" << endl;
-        {
-            unique_lock<mutex> lk(_hasIdleMutex);
-            if (!_idler) {
-                _hasIdleCv.wait(lk, [this] { return _idler; });
-            }
-            follower = _idler;
-            _idler = NULL;
-        }
-        cout << "Follower here" << endl;
+		while (!(follower = atomic_exchange<Player*>(&_idler, NULL))) {
+			this_thread::yield();
+		}
+		cout << "Selected follower " << follower << endl;
         follower->assign(fragId, newChar->first, newChar->second);
-        _hasIdleCv.notify_one();
     }
 
-    deputy->assignSync(fragId, newChar->first, newChar->second);
-    deputy->doEverything();
+	//deputy->assignSync(fragId, myChar->first, myChar->second);
+    //deputy->doEverything();
+	deputy->assign(fragId, myChar->first, myChar->second);
     
-    return _play->ended();
+	return _play->actEnded();
 }
 
 void Director::declareIdle(Player *me) {
-    {
-        unique_lock<mutex> lk(_hasIdleMutex);
-        if (_idler) {
-            _hasIdleCv.wait(lk, [this] { return !_idler; });
-        }
-        _idler = me;
-    }
-    _hasIdleCv.notify_all();
+	Player *empty = NULL;
+	while (!atomic_compare_exchange_strong(&_idler, &empty, me) && !_play->actEnded()) {
+		empty = NULL;
+		this_thread::yield();
+	}
+	cout << "I'm selected!" << me << endl;
 }
 

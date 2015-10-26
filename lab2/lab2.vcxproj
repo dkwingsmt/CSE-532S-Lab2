@@ -68,10 +68,14 @@
     <ClCompile Include="Director.cpp" />
     <ClCompile Include="H:\532\lab2\common\common.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Play.cpp" />
+    <ClCompile Include="Player.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Director.h" />
     <ClInclude Include="H:\532\lab2\common\common.h" />
+    <ClInclude Include="Play.h" />
+    <ClInclude Include="Player.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

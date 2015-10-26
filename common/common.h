@@ -5,6 +5,8 @@
 
 #include <functional>
 #include <string>
+#include <algorithm>
+#include <cctype>
 
 enum ErrorCode {
 	FILE_NOT_OPEN = 1,

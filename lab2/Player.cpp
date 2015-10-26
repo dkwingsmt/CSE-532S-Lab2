@@ -57,23 +57,22 @@ void Player::assign(size_t fragId,
         lock_guard<mutex> lk(_idleMutex);
         assignSync(fragId, charName, charFileName);
         _hasTask = true;
-        cout << "Assigned!" << charFileName << endl;
     }
     _idleCv.notify_one();
 }
 
 void Player::_start() {
-    while (!_play->ended()) {
+    while (!_play->actEnded()) {
         _hasTask = false;
         _director->declareIdle(this);
-        cout << "Before _start" << endl;
         {
             unique_lock<mutex> lk(_idleMutex);
-            cout << "During _start" << endl;
             if (!_hasTask)
-                _idleCv.wait(lk, [&] { return _hasTask; });
+				_idleCv.wait(lk, [&] { return _hasTask || _play->actEnded(); });
+			if (_play->actEnded()) {
+				return;
+			}
         }
-        cout << "After _start" << _charFileName << endl;
         doEverything();
     }
     cout << "Play ended" << endl;

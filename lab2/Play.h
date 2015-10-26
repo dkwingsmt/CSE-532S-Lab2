@@ -66,7 +66,7 @@ private:
 
 public:
 	explicit Play(const std::vector<tFragConfig> &fragTitles) : 
-        _lineCounter(0), 
+        _lineCounter(1), 
         _sceneFragCounter(0),
         _sceneConfig(fragTitles),
         _onStage(0),
@@ -84,9 +84,12 @@ public:
 
     void enter(size_t fragId);
     void exit();
-    bool ended() { 
+    bool distributeEnded() { 
         return _sceneFragDistributed == _sceneConfig.size();
-    }
+	}
+	bool actEnded() {
+		return _sceneFragCounter == _sceneConfig.size();
+	}
 
     tTaskInfo getNextTask();
 
