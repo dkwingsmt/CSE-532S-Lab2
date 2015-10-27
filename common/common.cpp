@@ -1,3 +1,4 @@
+#include <iostream>
 #include "common.h"
 
 using namespace std;
@@ -9,3 +10,5 @@ string dirnameOf(const string& fname) {
         ? ""
         : fname.substr(0, pos+1);
 }
+
+mutex cout_mutex;

@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <iostream>
 #include <sstream>
+#include "common.h"
 #include "Play.h"
 
 using namespace std;
@@ -20,6 +21,9 @@ void Play::recite(vector<PlayLine>::const_iterator &line,
             << _lineCounter << "]." << endl;
     }
     else {
+#ifdef DEBUG
+        lock_guard<mutex> lk(cout_mutex);
+#endif
         if (_currentPlayer != line->character) {
             cout << "\n" << line->character << "." << endl;
             _currentPlayer = line->character;

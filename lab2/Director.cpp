@@ -103,7 +103,10 @@ bool Director::cue() {
 	while (!(deputy = atomic_exchange<Player*>(&_idler, NULL))) {
 		this_thread::yield();
 	}
-	cout << "Selected deputy " << deputy << endl;
+    {
+        lock_guard<mutex> lk(cout_mutex);
+        cout << "Selected deputy " << deputy << endl;
+    }
 
     tTaskInfo task = _play->getNextTask();
     size_t fragId = task.fragId;
@@ -116,7 +119,10 @@ bool Director::cue() {
 		while (!(follower = atomic_exchange<Player*>(&_idler, NULL))) {
 			this_thread::yield();
 		}
-		cout << "Selected follower " << follower << endl;
+        {
+            lock_guard<mutex> lk(cout_mutex);
+            cout << "Selected follower " << follower << endl;
+        }
         follower->assign(fragId, newChar->first, newChar->second);
     }
 
@@ -133,6 +139,7 @@ void Director::declareIdle(Player *me) {
 		empty = NULL;
 		this_thread::yield();
 	}
+    lock_guard<mutex> lk(cout_mutex);
 	cout << "I'm selected!" << me << endl;
 }
 

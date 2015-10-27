@@ -5,8 +5,11 @@
 
 #include <functional>
 #include <string>
+#include <mutex>
 #include <algorithm>
 #include <cctype>
+
+#define DEBUG
 
 enum ErrorCode {
 	FILE_NOT_OPEN = 1,
@@ -43,5 +46,7 @@ static inline std::string trim(std::string s) {
 }
 
 std::string dirnameOf(const std::string& fname);
+
+extern std::mutex cout_mutex;
 
 #endif  // header guard
