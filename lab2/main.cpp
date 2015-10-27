@@ -10,8 +10,11 @@ int main(int argc, char **argv) {
         return 1;
     }
     const char *scriptFileName = argv[1];
-    Director director(scriptFileName);
-    while (!director.cue());
+    {
+        Director director(scriptFileName);
+        while (!director.electDirector());
+        // director joins players here.
+    }
 	cout << "End of main." << endl;
 	getchar();
     return 0;

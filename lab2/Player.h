@@ -16,32 +16,35 @@ class Player {
 private:
     Play *_play;
     Director *_director;
-    std::mutex _idleMutex;
-    std::condition_variable _idleCv;
-    size_t _fragId;
-    std::string _charName;
-    std::string _charFileName;
     std::thread _workThread;
-
     std::vector<PlayLine> _lines;
 
-    bool _ended;
     bool _hasTask;
+    tPlayerTask _task;
+    std::mutex _idleMutex;
+    std::condition_variable _idleCv;
+
+    bool _ended;
 
     void read();
-
     void act();
-
     void _start();
+
+    void _doLeader();
+    void _doFollower() {
+        enter();
+        exit();
+    }
 
 public:
     Player(Play *play, Director *director) :
-        _play(play), _director(director), _ended(false),
+        _play(play), 
+        _director(director), 
+		_workThread([this] { _start(); }),
         _hasTask(false),
-		_workThread([this] { _start(); })
+        _ended(false)
     {
     }
-
 
     void join() {
         {
@@ -58,7 +61,7 @@ public:
     // On stage
     void enter() {
         read();
-        _play->enter(_fragId);
+        _play->enter(_task.followerTask.fragId);
         act();
     }
 
@@ -67,18 +70,9 @@ public:
         _play->exit();
     }
 
-    void assign(size_t fragId, 
-                std::string charName, 
-                std::string charFileName);
-
-    void assignSync(size_t fragId, 
-                std::string charName, 
-                std::string charFileName);
-
-    void doEverything() {
-        enter();
-        exit();
-    }
+    void assignFollower(tFollowerTask);
+    void assignFollowerSync(tFollowerTask);
+    void assignLeader(tLeaderTask);
 
 };
 

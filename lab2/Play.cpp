@@ -70,7 +70,7 @@ void Play::exit() {
     _reciteCv.notify_all();
 }
 
-tTaskInfo Play::getNextTask() {
+tLeaderTask Play::getNextTask() {
     size_t nowFragId = _sceneFragDistributed++;
     return {nowFragId, _sceneConfig[nowFragId].chars};
 }

@@ -54,13 +54,13 @@ public:
     //    return _itNowScene == _scriptConfig.end();
     //}
 
-    void start();
-
     // Called by the now-director Player
     // Must call Director::ended() after this function completes!
-    bool cue();
+    void cue(size_t fragId, tCharConfig &charConfig);
 
     void declareIdle(Player *me);
+    bool electDirector();
+    
 };
 
 #endif

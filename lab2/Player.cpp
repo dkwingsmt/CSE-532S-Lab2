@@ -9,9 +9,10 @@
 using namespace std;
 
 void Player::read() {
-    ifstream charFile(_charFileName);
+    ifstream charFile(_task.followerTask.charFileName);
     if (!charFile) {
-        cout << "unable to open file" << _charFileName << endl;
+        cout << "unable to open file" 
+            << _task.followerTask.charFileName << endl;
         return;
     }
 
@@ -28,7 +29,7 @@ void Player::read() {
                 if (!text.empty())
                     _lines.push_back(PlayLine({
                                     lineNumber, 
-                                    _charName, 
+                                    _task.followerTask.charName, 
                                     text}));
             }
         }
@@ -39,26 +40,7 @@ void Player::act() {
 	sort(_lines.begin(), _lines.end());
     for(vector<PlayLine>::const_iterator playIterator = _lines.begin(); 
                 playIterator != _lines.end(); /* Blank */)
-        _play->recite(playIterator, _fragId);
-}
-
-void Player::assignSync(size_t fragId, 
-                std::string charName, 
-                std::string charFileName) {
-    _fragId = fragId;
-    _charName = charName;
-    _charFileName = charFileName;
-}
-
-void Player::assign(size_t fragId, 
-                std::string charName, 
-                std::string charFileName) {
-    {
-        lock_guard<mutex> lk(_idleMutex);
-        assignSync(fragId, charName, charFileName);
-        _hasTask = true;
-    }
-    _idleCv.notify_one();
+        _play->recite(playIterator, _task.followerTask.fragId);
 }
 
 void Player::_start() {
@@ -68,12 +50,55 @@ void Player::_start() {
         {
             unique_lock<mutex> lk(_idleMutex);
             if (!_hasTask)
-				_idleCv.wait(lk, [&] { return _hasTask || _play->actEnded(); });
+				_idleCv.wait(lk, [&] { 
+                            return _hasTask || _play->actEnded(); });
 			if (_play->actEnded()) {
 				return;
 			}
         }
-        doEverything();
+        if (_task.isLeader) {
+            _doLeader();
+        }
+        else {
+            _doFollower();
+        }
     }
     cout << "Play ended" << endl;
+}
+
+void Player::assignFollowerSync(tFollowerTask task) {
+    _task.followerTask = move(task);
+    _task.isLeader = false;
+}
+
+void Player::assignFollower(tFollowerTask task) {
+    {
+        lock_guard<mutex> lk(_idleMutex);
+        assignFollowerSync(move(task));
+        _hasTask = true;
+    }
+    _idleCv.notify_one();
+}
+
+void Player::assignLeader(tLeaderTask task) {
+    {
+        lock_guard<mutex> lk(_idleMutex);
+        _task.leaderTask = move(task);
+        _task.isLeader = true;
+        _hasTask = true;
+    }
+    _idleCv.notify_one();
+}
+
+void Player::_doLeader() {
+    size_t fragId = _task.leaderTask.fragId;
+    auto &chars = _task.leaderTask.chars;
+    auto myChar = chars.begin();
+    auto newChar = myChar;
+    ++newChar;
+    for(; newChar != chars.end(); newChar++) {
+        _director->cue(fragId, *newChar);
+    }
+    assignFollowerSync({fragId, myChar->first, myChar->second});
+    _doFollower();
 }

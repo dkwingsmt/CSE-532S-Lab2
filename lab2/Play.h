@@ -30,9 +30,22 @@ struct PlayLine {
 	}
 };
 
-struct tTaskInfo{
+struct tLeaderTask{
     size_t fragId;
-    const std::list<tCharConfig> &chars;
+    std::list<tCharConfig> chars;
+};
+
+struct tFollowerTask {
+    size_t fragId;
+    std::string charName;
+    std::string charFileName;
+};
+
+struct tPlayerTask {
+    bool isLeader;
+    // Work as a union
+    tLeaderTask leaderTask;
+    tFollowerTask followerTask;
 };
 
 // class Play, to organize the lines from different characters and 
@@ -91,7 +104,7 @@ public:
 		return _sceneFragCounter == _sceneConfig.size();
 	}
 
-    tTaskInfo getNextTask();
+    tLeaderTask getNextTask();
 
 };
 

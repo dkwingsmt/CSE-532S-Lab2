@@ -86,51 +86,37 @@ void Director::_recruit(size_t numPlayers) {
     }
 }
 
-/*
-void Director::start() {
-    _itNowScene = _scriptConfig.begin();
-    _itNowFrag = _itNowScene->second.begin();
-}
-*/
-
-bool Director::cue() {
+bool Director::electDirector() {
 	if (_play->distributeEnded()) {
         return true;
     }
 
-    Player *deputy;
+    Player *leader;
     // Wait until there's an idle
-	while (!(deputy = atomic_exchange<Player*>(&_idler, NULL))) {
+	while (!(leader = atomic_exchange<Player*>(&_idler, NULL))) {
 		this_thread::yield();
 	}
     {
         lock_guard<mutex> lk(cout_mutex);
-        cout << "Selected deputy " << deputy << endl;
+        cout << "Selected deputy " << leader << endl;
     }
 
-    tTaskInfo task = _play->getNextTask();
-    size_t fragId = task.fragId;
-    // First char for me, other chars for followers
-    list<tCharConfig>::const_iterator myChar = task.chars.begin();
-    list<tCharConfig>::const_iterator newChar = myChar;
-    ++newChar;
-    Player *follower;
-    for(; newChar != task.chars.end(); newChar++) {
-		while (!(follower = atomic_exchange<Player*>(&_idler, NULL))) {
-			this_thread::yield();
-		}
-        {
-            lock_guard<mutex> lk(cout_mutex);
-            cout << "Selected follower " << follower << endl;
-        }
-        follower->assign(fragId, newChar->first, newChar->second);
-    }
+    tLeaderTask &&task = _play->getNextTask();
+	leader->assignLeader(move(task));
 
-	//deputy->assignSync(fragId, myChar->first, myChar->second);
-    //deputy->doEverything();
-	deputy->assign(fragId, myChar->first, myChar->second);
-    
 	return _play->actEnded();
+}
+
+void Director::cue(size_t fragId, tCharConfig &charConfig) {
+    Player *follower;
+    while (!(follower = atomic_exchange<Player*>(&_idler, NULL))) {
+        this_thread::yield();
+    }
+    {
+        lock_guard<mutex> lk(cout_mutex);
+        cout << "Selected follower " << follower << endl;
+    }
+    follower->assignFollower({fragId, charConfig.first, charConfig.second});
 }
 
 void Director::declareIdle(Player *me) {
