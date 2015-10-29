@@ -3,8 +3,6 @@
 #include "parser.h"
 #include "common.h"
 
-//> H:\cse532s\Labs\CSE-532S-Lab2\Debug\output.txt
-
 using namespace std;
 
 int main(int argc, char *argv[]) {
@@ -15,8 +13,6 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 
-	//TODO: Input sanity check
-
 	const string basepath = dirnameOf(argv[0]);
 
 	{
@@ -26,6 +22,7 @@ int main(int argc, char *argv[]) {
 		p.set_base_path(basepath);
 		p.set_thread_pool(&pool);
 		p.parse(argv[1], argv[2]);
+
 	}   //Scope joins thread_pool threads
 
 	cout << "Completed Successfully :)" << endl;
