@@ -19,21 +19,20 @@ class Director {
 private:
     const static std::string PREFIX_SCENE;
     std::vector<tFragConfig> _scriptConfig;
-
+    std::shared_ptr<Play> _play;
+    std::list<std::shared_ptr<Player>> _players;
     size_t _numThreads;
 
     std::atomic<Player *> _idler;
 
-    std::shared_ptr<Play> _play;
-    std::list<std::shared_ptr<Player>> _players;
-
     // Returns biggestPairFrags
     size_t _readScript(std::string &scriptFileName);
-    bool _readFragConfig(std::ifstream &, std::list<tCharConfig> &, std::string);
+    bool _readFragConfig(std::ifstream &, 
+                std::list<tCharConfig> &, 
+                std::string);
     void _recruit(size_t numPlayers);
 
 public:
-
     Director(std::string scriptFileName) : 
         _numThreads(0),
         _idler(NULL)
@@ -45,9 +44,7 @@ public:
     }
 
 	~Director() {
-		for (auto player : _players) {
-			player->join();
-		}
+        // Work threads of players are joined by ~Player
 	}
 
     //bool ended() {

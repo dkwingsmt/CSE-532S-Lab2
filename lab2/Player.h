@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <thread>
+#include <atomic>
 //#include <iostream>
 //
 #include "common.h"
@@ -24,16 +25,40 @@ private:
     std::mutex _idleMutex;
     std::condition_variable _idleCv;
 
-    bool _ended;
+    std::atomic_bool _ended;
 
-    void read();
-    void act();
+    void _read();
+    void _act();
     void _start();
+
+    void _assignFollowerSync(tFollowerTask);
 
     void _doLeader();
     void _doFollower() {
-        enter();
-        exit();
+        _enter();
+        _exit();
+    }
+
+    // On stage
+    void _enter() {
+        _read();
+        _play->enter(_task.followerTask.fragId);
+        _act();
+    }
+
+    // Off stage
+    void _exit() {
+        _play->exit();
+    }
+
+    void _join() {
+        {
+            std::lock_guard<std::mutex> lk(_idleMutex);
+            _ended = true;
+        }
+        _idleCv.notify_one();
+		if (_workThread.joinable())
+			_workThread.join();
     }
 
 public:
@@ -46,32 +71,11 @@ public:
     {
     }
 
-    void join() {
-        {
-            std::lock_guard<std::mutex> lk(_idleMutex);
-            _ended = true;
-        }
-        _idleCv.notify_one();
-		if (_workThread.joinable())
-			_workThread.join();
-    }
-
-    //~Player();
-
-    // On stage
-    void enter() {
-        read();
-        _play->enter(_task.followerTask.fragId);
-        act();
-    }
-
-    // Off stage
-    void exit() {
-        _play->exit();
+    ~Player() {
+        _join();
     }
 
     void assignFollower(tFollowerTask);
-    void assignFollowerSync(tFollowerTask);
     void assignLeader(tLeaderTask);
 
 };
