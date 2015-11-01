@@ -44,28 +44,21 @@ solution folder, depends on which profile is choosed.
 Both executables requires command line arguments to run properly; they will 
 prompt usage information if no arguments are provided.
 
-Samples of outside files for testing are placed inside the config folder,
-including:
-- hamlet_act_ii_scene_2.txt. The original play file provided.
-- hamlet-34.txt. Another play file we excerpted by our own.
-- empty-play.txt. Totally empty. But still a valid play!
-- empty-but-one.txt. Empty, except for a lonely character, still with no lines.
-
 The usage for lab2.exe is
 
-    lab2.exe <configuration_file_path>
+    lab2.exe <configuration_file_path> <minimum-#-of-player> [-override]
 
 It reads and parses the configuration file, finds corresponding per-character 
 files in the SAME DIRECTORY as the config file, and prints the play into
 the standard output.
 
-The usage for lab1_extra.exe is
+The usage for lab2_generator.exe is
 
-    lab2_extra.exe [SCRAMBLE] <play_file_path> <configuration_file_path> <play name>
+    lab2_generator.exe <script-to-process> <output-scene-prefix>
 
 It reads and parses the play file, and generates a config file accordingly.
-It will also generate per-character play files in the SAME DIRECTORY as the 
-config file.
+It will also generate the scene files and per-character play files in the SAME 
+DIRECTORY as the config file.
 
 === Example ===
 
@@ -74,12 +67,15 @@ executales.
 
 Generate config files
 
-    lab1_extra.exe ..\configs\hamlet-34.txt ..\configs\hamlet-34_config.txt Hamlet Act II
+    lab2_generator.exe ..\configs\partial_hamlet_act_ii_script.txt
 
-And print it
+And play it
 
-    lab1_532.exe ..\configs\hamlet-34_config.txt
+    lab2.exe ..\configs\partial_hamlet_act_ii_script.txt
 
+or
+
+    lab2.exe ..\configs\partial_hamlet_act_ii_script.txt 10 -override
 
 == Description ==
 === Overview ===
