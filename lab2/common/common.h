@@ -12,7 +12,8 @@
 //#define DEBUG
 
 enum ErrorCode {
-	FILE_NOT_OPEN = 1,
+	EXCEPTION = 1,
+	FILE_NOT_OPEN,
 	ARGUMENT_ERROR,
 	NO_PLAY_AVAILABLE
 };

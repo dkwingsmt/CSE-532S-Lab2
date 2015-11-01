@@ -4,32 +4,36 @@
 
 using namespace std;
 
+#define ARGID_SCRIPT    1
+#define ARGID_NTHRD     2
+#define ARGID_OVERRIDE  3
+
 int program(int argc, char **argv) {
-    if (argc < 2) {
+    if (argc < (ARGID_SCRIPT+1)) {
 		cout << "Need script file name.\n";
-        return 1;
+        return ARGUMENT_ERROR;
     }
 
 	int numberOfThreads = 0;
 	try{
-		numberOfThreads = argc > 2 ? stoi(argv[2]) : 0;
+		numberOfThreads = argc > (ARGID_NTHRD+1) ? stoi(argv[ARGID_NTHRD]) : 0;
 	}
 	catch (...) {
 		cerr << "3rd parameter expected as a lower bound(integer) on the number of threads" << endl;
-		return 2;
+		return ARGUMENT_ERROR;
 	}
 
 	bool bOverride = false;
 
-	if (argc > 3) {
-		bOverride = strcmp(argv[3], "-override") == 0;
+	if (argc > (ARGID_OVERRIDE+1)) {
+		bOverride = strcmp(argv[ARGID_OVERRIDE], "-override") == 0;
 		if (!bOverride) {
 			cerr << "4th parameter expected as -override" << endl;
-			return 3;
+			return ARGUMENT_ERROR;
 		}
 	}
 
-    const char *scriptFileName = argv[1];
+    const char *scriptFileName = argv[ARGID_SCRIPT];
     {
         Director director(scriptFileName, numberOfThreads, bOverride);
 
@@ -48,11 +52,10 @@ int main(int argc, char **argv) {
 		return_code = program(argc, argv);
 	} catch (std::exception &e) {
 		cerr << e.what() << endl;
-		return_code = 100;
+		return_code = EXCEPTION;
 	} catch (...) {
 		cerr << "Something went wrong" << endl;
-		return_code = 100;
+		return_code = EXCEPTION;
 	}
-	getchar();
 	return return_code;
 }
