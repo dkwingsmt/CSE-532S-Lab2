@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <cctype>
 
-#define DEBUG
+//#define DEBUG
 
 enum ErrorCode {
 	FILE_NOT_OPEN = 1,

@@ -49,9 +49,9 @@ void Player::_start() {
         _director->declareIdle(this);
         {
             unique_lock<mutex> lk(_idleMutex);
-            if (!_hasTask)
+            if (!_hasTask && !_play->actEnded())
 				_idleCv.wait(lk, [&] { 
-                            return _hasTask || _play->actEnded(); });
+				return _hasTask || _play->actEnded(); });
 			if (_play->actEnded()) {
 				return;
 			}
@@ -63,18 +63,17 @@ void Player::_start() {
             _doFollower();
         }
     }
-    cout << "Play ended" << endl;
 }
 
 void Player::_assignFollowerSync(tFollowerTask task) {
-    _task.followerTask = move(task);
+    _task.followerTask = task;
     _task.isLeader = false;
 }
 
 void Player::assignFollower(tFollowerTask task) {
     {
         lock_guard<mutex> lk(_idleMutex);
-        _assignFollowerSync(move(task));
+        _assignFollowerSync(task);
         _hasTask = true;
     }
     _idleCv.notify_one();
@@ -83,7 +82,7 @@ void Player::assignFollower(tFollowerTask task) {
 void Player::assignLeader(tLeaderTask task) {
     {
         lock_guard<mutex> lk(_idleMutex);
-        _task.leaderTask = move(task);
+        _task.leaderTask = task;
         _task.isLeader = true;
         _hasTask = true;
     }
@@ -92,13 +91,15 @@ void Player::assignLeader(tLeaderTask task) {
 
 void Player::_doLeader() {
     size_t fragId = _task.leaderTask.fragId;
-    auto &chars = _task.leaderTask.chars;
+    auto chars = _task.leaderTask.chars;
     auto myChar = chars.begin();
     auto newChar = myChar;
     ++newChar;
     for(; newChar != chars.end(); newChar++) {
         _director->cue(fragId, *newChar);
-    }
-    _assignFollowerSync({fragId, myChar->first, myChar->second});
+	}
+	tFollowerTask ft({ fragId, myChar->first, myChar->second });
+	_assignFollowerSync(ft);
+	_director->resign();
     _doFollower();
 }

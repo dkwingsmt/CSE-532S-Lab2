@@ -9,6 +9,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <vector>
+#include <atomic>
 
 // {characterName, inputFileName}
 typedef std::pair<std::string, std::string> tCharConfig;
@@ -59,11 +60,10 @@ private:
     std::string _currentPlayer;
 
     size_t _lineCounter;
-    size_t _sceneFragCounter;
+    std::atomic<size_t> _sceneFragCounter;
     const std::vector<tFragConfig> &_sceneConfig;
-    std::list<tCharConfig>::const_iterator _itNextChar;
     size_t _onStage;
-    size_t _sceneFragDistributed;
+    std::atomic<size_t> _sceneFragDistributed;
 
 
     // return a - b

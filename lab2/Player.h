@@ -5,8 +5,8 @@
 #include <vector>
 #include <thread>
 #include <atomic>
-//#include <iostream>
-//
+#include <iostream>
+
 #include "common.h"
 #include "Play.h"
 
@@ -25,7 +25,7 @@ private:
     std::mutex _idleMutex;
     std::condition_variable _idleCv;
 
-    std::atomic_bool _ended;
+    std::atomic<bool> _ended;
 
     void _read();
     void _act();
@@ -51,11 +51,13 @@ private:
         _play->exit();
     }
 
+
     void _join() {
         {
             std::lock_guard<std::mutex> lk(_idleMutex);
             _ended = true;
         }
+
         _idleCv.notify_one();
 		if (_workThread.joinable())
 			_workThread.join();
@@ -65,10 +67,10 @@ public:
     Player(Play *play, Director *director) :
         _play(play), 
         _director(director), 
-		_workThread([this] { _start(); }),
         _hasTask(false),
         _ended(false)
     {
+		_workThread = std::move(std::thread([this] { _start(); }));
     }
 
     ~Player() {

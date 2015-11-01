@@ -21,9 +21,9 @@ private:
     std::vector<tFragConfig> _scriptConfig;
     std::shared_ptr<Play> _play;
     std::list<std::shared_ptr<Player>> _players;
-    size_t _numThreads;
 
     std::atomic<Player *> _idler;
+    std::atomic<bool> _hasDirector;
 
     // Returns biggestPairFrags
     size_t _readScript(std::string &scriptFileName);
@@ -33,30 +33,28 @@ private:
     void _recruit(size_t numPlayers);
 
 public:
-    Director(std::string scriptFileName) : 
-        _numThreads(0),
-        _idler(NULL)
+    Director(std::string scriptFileName, size_t numberOfPlayers = 0, bool bOverride = false) : 
+		_idler(NULL), _hasDirector(false)
     {
         size_t biggestPairFrags = _readScript(scriptFileName);
-        std::cout << "Total of " << biggestPairFrags << " threads." << std::endl;
-        // TODO: customized numPlayers
-        _recruit(biggestPairFrags);
+        _recruit(bOverride ? numberOfPlayers : std::max(biggestPairFrags, numberOfPlayers));
     }
 
 	~Director() {
         // Work threads of players are joined by ~Player
 	}
 
-    //bool ended() {
-    //    return _itNowScene == _scriptConfig.end();
-    //}
-
     // Called by the now-director Player
+    void cue(size_t fragId, tCharConfig charConfig);
+
     // Must call Director::ended() after this function completes!
-    void cue(size_t fragId, tCharConfig &charConfig);
+	bool actEnded() { return _play->actEnded(); }
 
     void declareIdle(Player *me);
     bool electDirector();
+	void resign() {
+		_hasDirector = false;
+	}
     
 };
 

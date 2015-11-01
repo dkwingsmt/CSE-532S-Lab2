@@ -45,14 +45,6 @@ size_t Director::_readScript(string &scriptFileName) {
         }
     }
 
-    for (auto &p : _scriptConfig) {
-        cout << "[" << p.title << "]" << endl;
-        for(auto &s : p.chars) {
-            cout << "  " << s.first << " " << s.second << endl;
-        }
-    }
-    cout << biggestPairFrags << endl;
-
     return biggestPairFrags;
 }
 
@@ -77,46 +69,37 @@ bool Director::_readFragConfig(ifstream &fragFile,
 }
 
 void Director::_recruit(size_t numPlayers) {
-    // May throw std::bad_alloc or any exception thrown by the constructor 
     _play = make_shared<Play>(_scriptConfig);
     _players.clear();
     for (size_t i = 0; i < numPlayers; i++) {
         _players.push_back(make_shared<Player>(_play.get(), this));
-        cout << "Thread " << i << endl;
     }
 }
 
 bool Director::electDirector() {
-	if (_play->distributeEnded()) {
-        return true;
-    }
-
     Player *leader;
+    // Wait until there's no director
+	while (_hasDirector) {
+		this_thread::yield();
+	}
     // Wait until there's an idle
 	while (!(leader = atomic_exchange<Player*>(&_idler, NULL))) {
 		this_thread::yield();
 	}
-    {
-        lock_guard<mutex> lk(cout_mutex);
-        cout << "Selected deputy " << leader << endl;
-    }
+	_hasDirector = true;
+	
+	leader->assignLeader(_play->getNextTask());
 
-    tLeaderTask &&task = _play->getNextTask();
-	leader->assignLeader(move(task));
-
-	return _play->actEnded();
+	return _play->distributeEnded();
 }
 
-void Director::cue(size_t fragId, tCharConfig &charConfig) {
+void Director::cue(size_t fragId, tCharConfig charConfig) {
     Player *follower;
     while (!(follower = atomic_exchange<Player*>(&_idler, NULL))) {
         this_thread::yield();
     }
-    {
-        lock_guard<mutex> lk(cout_mutex);
-        cout << "Selected follower " << follower << endl;
-    }
-    follower->assignFollower({fragId, charConfig.first, charConfig.second});
+	tFollowerTask task({ fragId, charConfig.first, charConfig.second });
+    follower->assignFollower(task);
 }
 
 void Director::declareIdle(Player *me) {
@@ -125,7 +108,5 @@ void Director::declareIdle(Player *me) {
 		empty = NULL;
 		this_thread::yield();
 	}
-    lock_guard<mutex> lk(cout_mutex);
-	cout << "I'm selected!" << me << endl;
 }
 
