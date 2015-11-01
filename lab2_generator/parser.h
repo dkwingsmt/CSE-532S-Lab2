@@ -1,4 +1,6 @@
-#pragma once
+#ifndef __PARSER_H__
+#define __PARSER_H__
+
 #include "thread_pool.h"
 #include <memory>
 #include <fstream>
@@ -56,3 +58,4 @@ public:
 	~parser();
 };
 
+#endif

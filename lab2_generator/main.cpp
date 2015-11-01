@@ -8,8 +8,7 @@ using namespace std;
 int main(int argc, char *argv[]) {
 
 	if (argc < 3) {
-		cerr << "Usage: " << argv[0] << "<script-to-process> <output-scene-prefix>";
-		getchar();
+		cerr << "Usage: " << argv[0] << " <script-to-process> <output-scene-prefix>";
 		exit(1);
 	}
 
@@ -27,8 +26,6 @@ int main(int argc, char *argv[]) {
 
 	cout << "Completed Successfully :)" << endl;
 	cout << "Press any key to continue..." << endl;
-
-	getchar();
 
 	exit(1);
 

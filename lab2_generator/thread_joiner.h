@@ -1,4 +1,6 @@
-#pragma once
+#ifndef __THREAD_JOINER_H__
+#define __THREAD_JOINER_H__
+
 #include <thread>
 #include <vector>
 #include <algorithm>
@@ -16,3 +18,4 @@ public:
 	}
 };
 
+#endif

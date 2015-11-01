@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __THREAD_POOL_H__
+#define __THREAD_POOL_H__
 
 #include <vector>
 #include <thread>
@@ -41,7 +42,7 @@ class thread_pool
 
 	void work(string character_name, string file_name, thread_safe_queue<line> *local_queue);
 
-	thread_safe_queue<line>* thread_pool::wait_for_character(string character_name);
+	thread_safe_queue<line>* wait_for_character(string character_name);
 
 public:
 	thread_pool(const string &basepath, const string &scene_name) : basepath(basepath), scene_name(scene_name), joiner(threads) {}
@@ -57,3 +58,5 @@ public:
 	~thread_pool();
 };
 
+
+#endif

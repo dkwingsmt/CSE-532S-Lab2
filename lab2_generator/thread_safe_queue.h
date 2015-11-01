@@ -1,5 +1,8 @@
-#pragma once
+#ifndef __THREAD_SAFE_QUEUE_H__
+#define __THREAD_SAFE_QUEUE_H__
+
 #include <mutex>
+#include <queue>
 
 using namespace std;
 
@@ -37,3 +40,4 @@ public:
 
 };
 
+#endif
