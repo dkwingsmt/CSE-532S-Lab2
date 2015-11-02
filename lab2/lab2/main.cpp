@@ -8,9 +8,12 @@ using namespace std;
 #define ARGID_NTHRD     2
 #define ARGID_OVERRIDE  3
 
+const char *USAGE = "Usage: lab2.exe <configuration_file_path> <minimum-#-of-player> [-override]";
+
 int program(int argc, char **argv) {
     if (argc < (ARGID_SCRIPT+1)) {
 		cout << "Need script file name.\n";
+		cout << USAGE << endl;
         return ARGUMENT_ERROR;
     }
 
@@ -20,6 +23,7 @@ int program(int argc, char **argv) {
 	}
 	catch (...) {
 		cerr << "3rd parameter expected as a lower bound(integer) on the number of threads" << endl;
+		cout << USAGE << endl;
 		return ARGUMENT_ERROR;
 	}
 
@@ -29,6 +33,7 @@ int program(int argc, char **argv) {
 		bOverride = strcmp(argv[ARGID_OVERRIDE], "-override") == 0;
 		if (!bOverride) {
 			cerr << "4th parameter expected as -override" << endl;
+			cout << USAGE << endl;
 			return ARGUMENT_ERROR;
 		}
 	}
